@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: arcane_db
+    environment:
+      POSTGRES_DB: arcane
+      POSTGRES_USER: arcane
+      POSTGRES_PASSWORD: arcane
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

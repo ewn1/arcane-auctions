@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.utils import timezone
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
@@ -12,6 +13,7 @@ from .services.scryfall import ScryfallUnavailable, get_card, search_cards
 from .services.bidding import BidRejected, place_bid
 from .services.audit import bidder_alias, verify_lot
 from .services.settlement import settle_due_lots, settle_lot
+from .services.cancellation import CancelRejected, cancel_lot
 
 
 class CardSearchView(APIView):
@@ -164,5 +166,75 @@ class ReceiptView(APIView):
                 "settled_at": lot.settled_at,
                 "bid_count": lot.bids.count(),
                 "chain_seal": lot.chain_seal,
+            }
+        )
+
+
+class CancelLotView(APIView):
+    permission_classes = [IsAuctioneer]
+
+    def post(self, request, pk):
+        try:
+            lot = cancel_lot(pk, request.user)
+        except CancelRejected as rejection:
+            status_code = {"not_found": 404, "not_owner": 403}.get(rejection.code, 400)
+            return Response(
+                {"code": rejection.code, "detail": rejection.message},
+                status=status_code,
+            )
+
+        return Response(
+            {
+                "id": lot.id,
+                "status": lot.status,
+                "detail": "Lote cancelado. Os valores comprometidos foram liberados aos licitantes.",
+            }
+        )
+
+
+class MyLotsView(APIView):
+    permission_classes = [IsAuctioneer]
+
+    def get(self, request):
+        settle_due_lots()
+        lots = Lot.objects.filter(auctioneer=request.user).order_by("-created_at")
+
+        total_received = Decimal("0.00")
+        items = []
+        for lot in lots:
+            sold = bool(lot.settled_at and lot.current_leader_id)
+            if sold:
+                total_received += lot.current_price
+
+            if sold:
+                result = "sold"
+            elif lot.settled_at:
+                result = "unsold"
+            else:
+                result = None
+
+            items.append(
+                {
+                    "id": lot.id,
+                    "title": lot.title,
+                    "image_url": lot.image_url,
+                    "status": lot.status,
+                    "starts_at": lot.starts_at,
+                    "ends_at": lot.ends_at,
+                    "starting_price": f"{lot.starting_price:.2f}",
+                    "current_price": (
+                        f"{lot.current_price:.2f}" if lot.current_price else None
+                    ),
+                    "bid_count": lot.bids.count(),
+                    "result": result,
+                    "winner": bidder_alias(lot.current_leader_id) if sold else None,
+                    "can_cancel": lot.status in (Lot.Status.SCHEDULED, Lot.Status.LIVE),
+                }
+            )
+
+        return Response(
+            {
+                "total_received": f"{total_received:.2f}",
+                "lots": items,
             }
         )

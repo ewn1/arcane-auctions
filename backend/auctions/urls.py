@@ -7,6 +7,8 @@ from .views import (
     LotListCreateView,
     PlaceBidView,
     ReceiptView,
+    CancelLotView,
+    MyLotsView,
 )
 
 urlpatterns = [
@@ -16,4 +18,6 @@ urlpatterns = [
     path("lots/<int:pk>/bids/", PlaceBidView.as_view(), name="place-bid"),
     path("lots/<int:pk>/audit/", LotAuditView.as_view(), name="lot-audit"),
     path("receipts/<uuid:token>/", ReceiptView.as_view(), name="receipt"),
+    path("lots/<int:pk>/cancel/", CancelLotView.as_view(), name="lot-cancel"),
+    path("my/lots/", MyLotsView.as_view(), name="my-lots"),
 ]

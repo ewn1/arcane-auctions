@@ -5,13 +5,15 @@ from django.test import TestCase
 from django.utils import timezone
 
 from accounts.models import User
-from auctions.models import Lot
-from auctions.services.audit import GENESIS_HASH, compute_chain_seal
+from auctions.models import Lot, Bid
+from auctions.services.audit import GENESIS_HASH, compute_chain_seal, verify_lot
 from auctions.services.bidding import ANTI_SNIPING_WINDOW, BidRejected, place_bid
 from auctions.services.wallet import get_committed_balance
+from auctions.services.settlement import settle_lot
 
 
-class PlaceBidTests(TestCase):
+class AuctionTestCase(TestCase):
+    # ---------- ajudantes ----------
     def setUp(self):
         self.auctioneer = User.objects.create_user(
             username="leiloeiro", password="x", role=User.Role.AUCTIONEER
@@ -23,8 +25,6 @@ class PlaceBidTests(TestCase):
             username="bob", password="x", balance=Decimal("1000.00")
         )
         self.lot = self.make_lot()
-
-    # ---------- ajudantes ----------
 
     def make_lot(self, starts_in=-10, ends_in=60, **extra):
         """Cria um lote. Os tempos são em minutos a partir de agora."""
@@ -45,6 +45,8 @@ class PlaceBidTests(TestCase):
             place_bid(lot.id, user, Decimal(amount))
         self.assertEqual(ctx.exception.code, code)
 
+
+class PlaceBidTests(AuctionTestCase):
     # ---------- valor mínimo ----------
 
     def test_primeiro_lance_precisa_atingir_lance_inicial(self):
@@ -125,3 +127,82 @@ class PlaceBidTests(TestCase):
             self.lot.chain_seal,
             compute_chain_seal(self.lot.id, 2, segundo.hash),
         )
+
+
+class SettlementTests(AuctionTestCase):
+    def end_lot(self, lot):
+        Lot.objects.filter(pk=lot.pk).update(
+            ends_at=timezone.now() - timedelta(minutes=1)
+        )
+
+    def test_liquidacao_debita_vencedor_e_credita_leiloeiro(self):
+        place_bid(self.lot.id, self.alice, Decimal("100.00"))
+        place_bid(self.lot.id, self.bob, Decimal("150.00"))
+        self.end_lot(self.lot)
+
+        lot = settle_lot(self.lot.id)
+
+        self.assertIsNotNone(lot.settled_at)
+        self.bob.refresh_from_db()
+        self.alice.refresh_from_db()
+        self.auctioneer.refresh_from_db()
+        self.assertEqual(self.bob.balance, Decimal("850.00"))
+        self.assertEqual(self.alice.balance, Decimal("1000.00"))
+        self.assertEqual(self.auctioneer.balance, Decimal("150.00"))
+
+    def test_liquidacao_e_idempotente(self):
+        place_bid(self.lot.id, self.alice, Decimal("100.00"))
+        self.end_lot(self.lot)
+
+        settle_lot(self.lot.id)
+        settle_lot(self.lot.id)  # segunda chamada não pode debitar de novo
+
+        self.alice.refresh_from_db()
+        self.assertEqual(self.alice.balance, Decimal("900.00"))
+
+    def test_lote_sem_lances_fecha_sem_vencedor(self):
+        self.end_lot(self.lot)
+        lot = settle_lot(self.lot.id)
+        self.assertIsNotNone(lot.settled_at)
+        self.assertIsNone(lot.current_leader)
+
+    def test_lote_ao_vivo_nao_e_liquidado(self):
+        lot = settle_lot(self.lot.id)
+        self.assertIsNone(lot.settled_at)
+
+
+class AuditTests(AuctionTestCase):
+    def setUp(self):
+        super().setUp()
+        place_bid(self.lot.id, self.alice, Decimal("100.00"))
+        place_bid(self.lot.id, self.bob, Decimal("110.00"))
+        place_bid(self.lot.id, self.alice, Decimal("120.00"))
+        self.lot.refresh_from_db()
+
+    def test_historico_integro(self):
+        result = verify_lot(self.lot)
+        self.assertTrue(result["is_intact"])
+        self.assertEqual(len(result["bids"]), 3)
+
+    def test_detecta_valor_alterado_direto_no_banco(self):
+        primeiro = self.lot.bids.order_by("created_at", "id").first()
+        Bid.objects.filter(pk=primeiro.pk).update(amount=Decimal("101.00"))
+        self.assertFalse(verify_lot(self.lot)["is_intact"])
+
+    def test_detecta_lance_removido_do_meio(self):
+        meio = self.lot.bids.order_by("created_at", "id")[1]
+        Bid.objects.filter(pk=meio.pk).delete()
+        self.assertFalse(verify_lot(self.lot)["is_intact"])
+
+    def test_detecta_ultimo_lance_removido(self):
+        ultimo = self.lot.bids.order_by("-created_at", "-id").first()
+        Bid.objects.filter(pk=ultimo.pk).delete()
+        self.lot.refresh_from_db()
+        self.assertFalse(verify_lot(self.lot)["is_intact"])
+
+    def test_pseudonimo_nao_expoe_o_usuario(self):
+        result = verify_lot(self.lot)
+        for entry in result["bids"]:
+            self.assertTrue(entry["bidder"].startswith("Licitante #"))
+            self.assertNotIn("alice", entry["bidder"])
+            self.assertNotIn("bob", entry["bidder"])

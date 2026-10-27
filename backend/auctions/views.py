@@ -10,6 +10,8 @@ from .models import Lot
 from .serializers import LotCreateSerializer, LotSerializer, PlaceBidSerializer
 from .services.scryfall import ScryfallUnavailable, get_card, search_cards
 from .services.bidding import BidRejected, place_bid
+from .services.audit import bidder_alias, verify_lot
+from .services.settlement import settle_due_lots, settle_lot
 
 
 class CardSearchView(APIView):
@@ -81,11 +83,19 @@ class LotListCreateView(generics.ListCreateAPIView):
         )
         return Response(LotSerializer(lot).data, status=201)
 
+    def list(self, request, *args, **kwargs):
+        settle_due_lots()
+        return super().list(request, *args, **kwargs)
+
 
 class LotDetailView(generics.RetrieveAPIView):
     queryset = Lot.objects.select_related("auctioneer")
     serializer_class = LotSerializer
     permission_classes = [AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        settle_lot(kwargs["pk"])
+        return super().retrieve(request, *args, **kwargs)
 
 
 class PlaceBidView(APIView):
@@ -106,3 +116,53 @@ class PlaceBidView(APIView):
             )
 
         return Response(LotSerializer(lot).data, status=201)
+
+
+class LotAuditView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        lot = Lot.objects.filter(pk=pk).first()
+        if lot is None:
+            return Response({"detail": "Lote não encontrado."}, status=404)
+
+        result = verify_lot(lot)
+        return Response(
+            {
+                "lot_id": lot.id,
+                "title": lot.title,
+                "status": lot.status,
+                **result,
+            }
+        )
+
+
+class ReceiptView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, token):
+        lot = (
+            Lot.objects.select_related("auctioneer").filter(receipt_token=token).first()
+        )
+        if lot:
+            settle_lot(lot.id)
+            lot.refresh_from_db()
+
+        if not lot or not lot.settled_at or not lot.current_leader_id:
+            return Response({"detail": "Comprovante não encontrado."}, status=404)
+
+        return Response(
+            {
+                "receipt_code": str(lot.receipt_token),
+                "lot_id": lot.id,
+                "title": lot.title,
+                "image_url": lot.image_url,
+                "attributes": lot.attributes,
+                "final_price": f"{lot.current_price:.2f}",
+                "winner": bidder_alias(lot.current_leader_id),
+                "auctioneer": lot.auctioneer.username,
+                "settled_at": lot.settled_at,
+                "bid_count": lot.bids.count(),
+                "chain_seal": lot.chain_seal,
+            }
+        )

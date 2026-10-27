@@ -11,6 +11,7 @@ from auctions.services.wallet import get_wallet
 from .models import User
 from .permissions import IsBidder
 from .serializers import RegisterSerializer
+from auctions.services.settlement import settle_due_lots
 
 MAX_DEPOSIT = Decimal("100000.00")
 
@@ -62,5 +63,14 @@ class DepositView(APIView):
 
         amount = amount.quantize(Decimal("0.01"))
         User.objects.filter(pk=request.user.pk).update(balance=F("balance") + amount)
+        request.user.refresh_from_db()
+        return Response(get_wallet(request.user))
+
+
+class WalletView(APIView):
+    permission_classes = [IsBidder]
+
+    def get(self, request):
+        settle_due_lots()
         request.user.refresh_from_db()
         return Response(get_wallet(request.user))

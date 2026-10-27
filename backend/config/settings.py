@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 
@@ -139,3 +140,6 @@ SIMPLE_JWT = {
 }
 
 AUDIT_HMAC_KEY = os.getenv("AUDIT_HMAC_KEY")
+
+if "test" in sys.argv:
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

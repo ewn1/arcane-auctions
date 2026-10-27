@@ -17,8 +17,9 @@ def get_committed_balance(user):
 
 def get_wallet(user):
     committed = get_committed_balance(user)
+    available = user.balance - committed
     return {
-        "total": user.balance,
-        "committed": committed,
-        "available": user.balance - committed,
+        "total": f"{user.balance:.2f}",
+        "committed": f"{committed:.2f}",
+        "available": f"{available:.2f}",
     }

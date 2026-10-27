@@ -4,11 +4,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.permissions import IsAuctioneer
+from accounts.permissions import IsAuctioneer, IsBidder
 
 from .models import Lot
-from .serializers import LotCreateSerializer, LotSerializer
+from .serializers import LotCreateSerializer, LotSerializer, PlaceBidSerializer
 from .services.scryfall import ScryfallUnavailable, get_card, search_cards
+from .services.bidding import BidRejected, place_bid
 
 
 class CardSearchView(APIView):
@@ -85,3 +86,23 @@ class LotDetailView(generics.RetrieveAPIView):
     queryset = Lot.objects.select_related("auctioneer")
     serializer_class = LotSerializer
     permission_classes = [AllowAny]
+
+
+class PlaceBidView(APIView):
+    permission_classes = [IsBidder]
+
+    def post(self, request, pk):
+        serializer = PlaceBidSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            bid, lot = place_bid(pk, request.user, serializer.validated_data["amount"])
+        except Lot.DoesNotExist:
+            return Response({"detail": "Lote não encontrado."}, status=404)
+        except BidRejected as rejection:
+            return Response(
+                {"code": rejection.code, "detail": rejection.message},
+                status=400,
+            )
+
+        return Response(LotSerializer(lot).data, status=201)

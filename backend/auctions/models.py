@@ -43,6 +43,7 @@ class Lot(models.Model):
     )
     cancelled_at = models.DateTimeField(null=True, blank=True)
     settled_at = models.DateTimeField(null=True, blank=True)
+    chain_seal = models.CharField(max_length=64, blank=True)
 
     receipt_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)

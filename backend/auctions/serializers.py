@@ -1,3 +1,4 @@
+from decimal import Decimal
 from datetime import timedelta
 
 from django.utils import timezone
@@ -63,3 +64,11 @@ class LotCreateSerializer(serializers.ModelSerializer):
                 {"starts_at": "O lote não pode começar no passado."}
             )
         return data
+
+
+class PlaceBidSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        min_value=Decimal("0.01"),
+    )

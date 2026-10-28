@@ -10,6 +10,7 @@ from auctions.services.audit import GENESIS_HASH, compute_chain_seal, verify_lot
 from auctions.services.bidding import ANTI_SNIPING_WINDOW, BidRejected, place_bid
 from auctions.services.wallet import get_committed_balance
 from auctions.services.settlement import settle_lot
+from auctions.services.cancellation import CancelRejected, cancel_lot
 
 
 class AuctionTestCase(TestCase):
@@ -206,3 +207,27 @@ class AuditTests(AuctionTestCase):
             self.assertTrue(entry["bidder"].startswith("Licitante #"))
             self.assertNotIn("alice", entry["bidder"])
             self.assertNotIn("bob", entry["bidder"])
+
+
+class CancelTests(AuctionTestCase):
+    def test_cancelar_lote_libera_saldo_comprometido(self):
+        place_bid(self.lot.id, self.alice, Decimal("300.00"))
+        self.assertEqual(get_committed_balance(self.alice), Decimal("300.00"))
+
+        cancel_lot(self.lot.id, self.auctioneer)
+
+        self.assertEqual(get_committed_balance(self.alice), Decimal("0.00"))
+
+    def test_outro_leiloeiro_nao_pode_cancelar(self):
+        outro = User.objects.create_user(
+            username="outro", password="x", role=User.Role.AUCTIONEER
+        )
+        with self.assertRaises(CancelRejected) as ctx:
+            cancel_lot(self.lot.id, outro)
+        self.assertEqual(ctx.exception.code, "not_owner")
+
+    def test_lote_encerrado_nao_pode_ser_cancelado(self):
+        lot = self.make_lot(starts_in=-60, ends_in=-1)
+        with self.assertRaises(CancelRejected) as ctx:
+            cancel_lot(lot.id, self.auctioneer)
+        self.assertEqual(ctx.exception.code, "ended")

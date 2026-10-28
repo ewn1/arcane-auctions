@@ -1,13 +1,15 @@
 from django.urls import path
 
 from .views import (
+    CancelLotView,
     CardSearchView,
     LotAuditView,
+    LotBidsView,
     LotDetailView,
     LotListCreateView,
-    LotBidsView,
-    ReceiptView,
     MyBidsView,
+    MyLotsView,
+    ReceiptView,
 )
 
 urlpatterns = [
@@ -18,4 +20,6 @@ urlpatterns = [
     path("my/bids/", MyBidsView.as_view(), name="my-bids"),
     path("lots/<int:pk>/audit/", LotAuditView.as_view(), name="lot-audit"),
     path("receipts/<uuid:token>/", ReceiptView.as_view(), name="receipt"),
+    path("lots/<int:pk>/cancel/", CancelLotView.as_view(), name="lot-cancel"),
+    path("my/lots/", MyLotsView.as_view(), name="my-lots"),
 ]

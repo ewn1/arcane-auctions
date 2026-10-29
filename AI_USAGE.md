@@ -29,3 +29,7 @@
 
 - Sala do lote (polling com pausa em aba oculta, contagem regressiva, banners de "ganhando/superado", formulário de lance com sugestões, mensagens de recusa temáticas e histórico com destaque do próprio lance) proposta pela IA e explicada parte por parte. Testei a disputa em tempo real com dois licitantes em janelas separadas e validei as mensagens de recusa.
 - Telas de carteira, meus arremates, comprovante público e auditoria pública, além do guardião de rotas por papel (com o estado "ready" no contexto de autenticação), propostas pela IA e explicadas. Testei o fluxo completo, inclusive o comprovante aberto sem login e a auditoria acusando uma adulteração feita pelo shell do Django.
+
+## 29/10 — Painel do leiloeiro
+
+- Painel do leiloeiro (busca com debounce no Scryfall, formulário de criação com início imediato e duração, lista com resultados e cancelamento com estorno) proposto pela IA e explicado componente por componente. Validei a criação, as mensagens de erro do back-end, o cancelamento liberando o saldo comprometido e a resiliência com o Scryfall fora do ar.

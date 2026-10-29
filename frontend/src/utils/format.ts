@@ -1,3 +1,5 @@
+import type { LotStatus } from '../types'
+
 const brl = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
@@ -61,4 +63,23 @@ export function addMoney(
 
 export function shortHash(hash: string): string {
   return `${hash.slice(0, 10)}…${hash.slice(-6)}`
+}
+
+const STATUS_LABELS: Record<LotStatus, string> = {
+  scheduled: 'Agendado',
+  live: 'Ao vivo',
+  ended: 'Encerrado',
+  cancelled: 'Cancelado',
+}
+
+export function statusLabel(status: LotStatus): string {
+  return STATUS_LABELS[status]
+}
+
+export function toDateTimeLocal(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  )
 }

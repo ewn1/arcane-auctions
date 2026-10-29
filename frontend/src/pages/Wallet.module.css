@@ -1,0 +1,46 @@
+.balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.balance strong {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+}
+
+.balance p {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.committed {
+  color: var(--arcane);
+}
+
+.highlight {
+  border-color: var(--gold);
+  box-shadow: 0 0 24px rgba(217, 180, 91, 0.12);
+}
+
+.depositForm {
+  max-width: 480px;
+}
+
+.depositForm h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

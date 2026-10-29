@@ -47,3 +47,10 @@ export interface Lot {
   min_next_bid: string
   me: MyLotPosition | null
 }
+
+export interface BidEntry {
+  bidder: string
+  amount: string
+  created_at: string
+  is_mine: boolean
+}

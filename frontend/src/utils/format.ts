@@ -40,3 +40,21 @@ const RARITIES: Record<string, string> = {
 export function rarityLabel(rarity: string): string {
   return RARITIES[rarity] ?? rarity
 }
+
+export function formatDateTimeSeconds(iso: string): string {
+  return new Date(iso).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+}
+
+export function addMoney(
+  base: string,
+  increment: string,
+  times: number,
+): string {
+  return (Number(base) + Number(increment) * times).toFixed(2)
+}

@@ -1,0 +1,272 @@
+.room {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.back {
+  align-self: flex-start;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.cardColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardImage {
+  aspect-ratio: 488 / 680;
+  padding: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 48px rgba(155, 109, 255, 0.15);
+}
+
+.cardImage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.attributes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.attributes div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.attributes dt {
+  color: var(--muted);
+}
+
+.attributes dd {
+  margin: 0;
+  text-align: right;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.banner {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+.winning {
+  background: rgba(79, 209, 139, 0.12);
+  border: 1px solid rgba(79, 209, 139, 0.5);
+  color: var(--success);
+}
+
+.outbid {
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  color: var(--danger);
+}
+
+.won {
+  background: rgba(217, 180, 91, 0.14);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.neutral {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.priceCard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.priceCard > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  color: var(--gold);
+}
+
+.countdown {
+  text-align: right;
+}
+
+.countdown strong {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+}
+
+.urgent strong {
+  color: var(--danger);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0;
+}
+
+.facts div {
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.facts dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.facts dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+.snipingNote {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.bidForm {
+  gap: 12px;
+}
+
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historyHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.historyHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.bidList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bidList li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.mine {
+  border-color: var(--arcane) !important;
+}
+
+.leaderTag {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1a1408;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cardColumn {
+    max-width: 380px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .urgent strong {
+    animation: none;
+  }
+}

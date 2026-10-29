@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
 import Showcase from './pages/Showcase'
+import LotRoom from './pages/LotRoom'
 
 export default function App() {
   return (
@@ -17,9 +18,10 @@ export default function App() {
             <Route index element={<Showcase />} />
             <Route path="login" element={<Login />} />
             <Route path="cadastro" element={<Register />} />
+            <Route path="lotes/:id" element={<LotRoom />} />
             <Route
-              path="lotes/:id"
-              element={<ComingSoon title="Sala do lote" />}
+              path="lotes/:id/auditoria"
+              element={<ComingSoon title="Auditoria do lote" />}
             />
             <Route path="carteira" element={<ComingSoon title="Carteira" />} />
             <Route

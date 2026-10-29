@@ -5,14 +5,22 @@ import { AuthContext } from './auth-context'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [ready, setReady] = useState(() => !getToken())
 
   useEffect(() => {
     let active = true
 
     if (getToken()) {
       api<User>('/auth/me/')
-        .then((me) => active && setUser(me))
-        .catch(() => active && setUser(null))
+        .then((me) => {
+          if (active) setUser(me)
+        })
+        .catch(() => {
+          if (active) setUser(null)
+        })
+        .finally(() => {
+          if (active) setReady(true)
+        })
     }
 
     const handleLogout = () => setUser(null)
@@ -41,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
+    ready,
     isAuctioneer: user?.role === 'auctioneer',
     login,
     logout,

@@ -24,3 +24,8 @@
 ## 28/10 — Base do front-end
 
 - Estrutura do front-end (cliente da API tipado, contexto de autenticação, vitrine, tela de invocação do servidor) proposta pela IA e explicada arquivo a arquivo. A escolha de TypeScript + CSS Modules foi minha, depois de comparar com a IA as alternativas (styled-components, CSS global). Ajustei o código às regras do ESLint do React com a orientação da IA e validei com lint, build e testes manuais no navegador.
+
+## 29/10 — Sala do lote ao vivo
+
+- Sala do lote (polling com pausa em aba oculta, contagem regressiva, banners de "ganhando/superado", formulário de lance com sugestões, mensagens de recusa temáticas e histórico com destaque do próprio lance) proposta pela IA e explicada parte por parte. Testei a disputa em tempo real com dois licitantes em janelas separadas e validei as mensagens de recusa.
+- Telas de carteira, meus arremates, comprovante público e auditoria pública, além do guardião de rotas por papel (com o estado "ready" no contexto de autenticação), propostas pela IA e explicadas. Testei o fluxo completo, inclusive o comprovante aberto sem login e a auditoria acusando uma adulteração feita pelo shell do Django.

@@ -58,3 +58,7 @@ export function addMoney(
 ): string {
   return (Number(base) + Number(increment) * times).toFixed(2)
 }
+
+export function shortHash(hash: string): string {
+  return `${hash.slice(0, 10)}…${hash.slice(-6)}`
+}

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError, errorMessage } from '../api/client'
 import { useAuth } from '../hooks/useAuth'
 import styles from './Auth.module.css'
@@ -14,6 +14,8 @@ const DEMO_PASSWORD = 'Arcane@2026'
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: string } | null)?.from ?? '/'
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -25,7 +27,7 @@ export default function Login() {
     setSubmitting(true)
     try {
       await login(username, password)
-      navigate('/')
+      navigate(from, { replace: true })
     } catch (err) {
       const wrongCredentials = err instanceof ApiError && err.status === 401
       setError(

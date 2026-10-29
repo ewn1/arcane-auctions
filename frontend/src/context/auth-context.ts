@@ -3,6 +3,7 @@ import type { User } from '../types'
 
 export interface AuthContextValue {
   user: User | null
+  ready: boolean
   isAuctioneer: boolean
   login: (username: string, password: string) => Promise<void>
   logout: () => void

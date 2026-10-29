@@ -213,3 +213,17 @@ h3 {
 .rarity--mythic {
   color: #ff8a4c;
 }
+
+/* ---------- Impressão ---------- */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+}

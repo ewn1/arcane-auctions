@@ -20,3 +20,7 @@
 ## 27/10 — Deploy do back-end
 
 - Configuração de produção (gunicorn, whitenoise, segurança, build script) e escolha de Render + Neon orientadas pela IA, que pesquisou os limites atuais dos planos gratuitos. Diagnostiquei com a IA a falha do primeiro deploy pelo log (STATIC_URL removido por engano) e corrigi com uma branch de hotfix, seguindo o Git flow.
+
+## 28/10 — Base do front-end
+
+- Estrutura do front-end (cliente da API tipado, contexto de autenticação, vitrine, tela de invocação do servidor) proposta pela IA e explicada arquivo a arquivo. A escolha de TypeScript + CSS Modules foi minha, depois de comparar com a IA as alternativas (styled-components, CSS global). Ajustei o código às regras do ESLint do React com a orientação da IA e validei com lint, build e testes manuais no navegador.

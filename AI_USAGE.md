@@ -33,3 +33,7 @@
 ## 29/10 — Painel do leiloeiro
 
 - Painel do leiloeiro (busca com debounce no Scryfall, formulário de criação com início imediato e duração, lista com resultados e cancelamento com estorno) proposto pela IA e explicado componente por componente. Validei a criação, as mensagens de erro do back-end, o cancelamento liberando o saldo comprometido e a resiliência com o Scryfall fora do ar.
+
+## 30/10 — Dados de demonstração e deploy do front-end
+
+- Novos lotes de demonstração (cartas de LOTR e clássicos de Magic, com duração de 60 dias para cobrir o período de avaliação): a escolha das cartas e a distribuição dos estados foram minhas; a IA estruturou o seed e sugeriu validá-lo num banco temporário antes do deploy. Deploy do front-end como site estático no Render, com a regra de reescrita para as rotas da SPA e o CORS de produção, orientado pela IA.

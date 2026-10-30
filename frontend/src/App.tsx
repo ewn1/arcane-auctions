@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import ServerGate from './components/ServerGate'
 import { AuthProvider } from './context/AuthContext'
-import ComingSoon from './pages/ComingSoon'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
@@ -13,6 +12,7 @@ import Audit from './pages/Audit'
 import MyBids from './pages/MyBids'
 import Receipt from './pages/Receipt'
 import Wallet from './pages/Wallet'
+import AuctioneerPanel from './pages/panel/AuctioneerPanel'
 
 export default function App() {
   return (
@@ -46,7 +46,7 @@ export default function App() {
               path="painel"
               element={
                 <RequireRole role="auctioneer">
-                  <ComingSoon title="Painel do leiloeiro" />
+                  <AuctioneerPanel />
                 </RequireRole>
               }
             />

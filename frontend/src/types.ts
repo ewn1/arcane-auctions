@@ -105,3 +105,30 @@ export interface AuditResult {
   problems: string[]
   bids: AuditEntry[]
 }
+
+export interface CardResult {
+  external_id: string
+  title: string
+  image_url: string
+  attributes: CardAttributes
+}
+
+export interface MyLotItem {
+  id: number
+  title: string
+  image_url: string
+  status: LotStatus
+  starts_at: string
+  ends_at: string
+  starting_price: string
+  current_price: string | null
+  bid_count: number
+  result: 'sold' | 'unsold' | null
+  winner: string | null
+  can_cancel: boolean
+}
+
+export interface MyLotsResponse {
+  total_received: string
+  lots: MyLotItem[]
+}
